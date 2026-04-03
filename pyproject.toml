@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mnemos"
+version = "0.2.0a1"
+description = "Neuromorphic AI built on Hebbian learning. No backprop. No gradients. No loss functions."
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+authors = [
+    {name = "Gustav Gausepohl"},
+]
+keywords = ["hebbian", "neuromorphic", "biologically-plausible", "competitive-learning", "continual-learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "numpy>=1.20",
+]
+
+[project.urls]
+Homepage = "https://thegcmd.github.io/"
+Repository = "https://github.com/theGcmd/mnemos"
+
+[tool.setuptools.packages.find]
+include = ["mnemos*"]
