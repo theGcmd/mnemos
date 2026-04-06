@@ -1,0 +1,2166 @@
+{
+  "event_trace": [
+    {
+      "t": 0,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0257,
+      "smoothed": 0.0257,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 1,
+      "true_label": "normal",
+      "score": 0.0045,
+      "confidence": 0.0594,
+      "smoothed": 0.0594,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 2,
+      "true_label": "normal",
+      "score": 0.0045,
+      "confidence": 0.0652,
+      "smoothed": 0.0501,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 3,
+      "true_label": "normal",
+      "score": 0.0045,
+      "confidence": 0.0509,
+      "smoothed": 0.0503,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 4,
+      "true_label": "normal",
+      "score": 0.0033,
+      "confidence": 0.0009,
+      "smoothed": 0.0404,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 5,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0454,
+      "smoothed": 0.0444,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 6,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.037,
+      "smoothed": 0.0399,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 7,
+      "true_label": "normal",
+      "score": 0.0033,
+      "confidence": 0.0011,
+      "smoothed": 0.0271,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 8,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0338,
+      "smoothed": 0.0236,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 9,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0014,
+      "smoothed": 0.0237,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 10,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0033,
+      "smoothed": 0.0153,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 11,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0027,
+      "smoothed": 0.0084,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 12,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0018,
+      "smoothed": 0.0086,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 13,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0034,
+      "smoothed": 0.0025,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 14,
+      "true_label": "normal",
+      "score": 0.0048,
+      "confidence": 0.1502,
+      "smoothed": 0.0323,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 15,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0105,
+      "smoothed": 0.0337,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 16,
+      "true_label": "normal",
+      "score": 0.0045,
+      "confidence": 0.0517,
+      "smoothed": 0.0435,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 17,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0031,
+      "smoothed": 0.0438,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 18,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0061,
+      "smoothed": 0.0443,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 19,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0323,
+      "smoothed": 0.0207,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 20,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0167,
+      "smoothed": 0.022,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 21,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0136,
+      "smoothed": 0.0144,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 22,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0051,
+      "smoothed": 0.0148,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 23,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0189,
+      "smoothed": 0.0173,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 24,
+      "true_label": "normal",
+      "score": 0.0032,
+      "confidence": 0.0006,
+      "smoothed": 0.011,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 25,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0019,
+      "smoothed": 0.008,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 26,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0244,
+      "smoothed": 0.0102,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 27,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0361,
+      "smoothed": 0.0164,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 28,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0166,
+      "smoothed": 0.0159,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 29,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0098,
+      "smoothed": 0.0177,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 30,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0017,
+      "smoothed": 0.0177,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 31,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0052,
+      "smoothed": 0.0139,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 32,
+      "true_label": "normal",
+      "score": 0.0028,
+      "confidence": 0.0002,
+      "smoothed": 0.0067,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 33,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0098,
+      "smoothed": 0.0053,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 34,
+      "true_label": "normal",
+      "score": 0.0029,
+      "confidence": 0.0002,
+      "smoothed": 0.0034,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 35,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.014,
+      "smoothed": 0.0059,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 36,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0417,
+      "smoothed": 0.0132,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 37,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0023,
+      "smoothed": 0.0136,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 38,
+      "true_label": "normal",
+      "score": 0.005,
+      "confidence": 0.2497,
+      "smoothed": 0.0616,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 39,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0029,
+      "smoothed": 0.0621,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 40,
+      "true_label": "normal",
+      "score": 0.0033,
+      "confidence": 0.001,
+      "smoothed": 0.0595,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 41,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0051,
+      "smoothed": 0.0522,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 42,
+      "true_label": "normal",
+      "score": 0.0048,
+      "confidence": 0.1326,
+      "smoothed": 0.0782,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 43,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0342,
+      "smoothed": 0.0351,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 44,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0058,
+      "smoothed": 0.0357,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 45,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0012,
+      "smoothed": 0.0358,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 46,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0062,
+      "smoothed": 0.036,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 47,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0019,
+      "smoothed": 0.0099,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 48,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0053,
+      "smoothed": 0.0041,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 49,
+      "true_label": "normal",
+      "score": 0.0033,
+      "confidence": 0.001,
+      "smoothed": 0.0031,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 50,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0228,
+      "smoothed": 0.0074,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 51,
+      "true_label": "normal",
+      "score": 0.0033,
+      "confidence": 0.001,
+      "smoothed": 0.0064,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 52,
+      "true_label": "normal",
+      "score": 0.0032,
+      "confidence": 0.0007,
+      "smoothed": 0.0062,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 53,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0248,
+      "smoothed": 0.0101,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 54,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0116,
+      "smoothed": 0.0122,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 55,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0119,
+      "smoothed": 0.01,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 56,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0484,
+      "smoothed": 0.0194,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 57,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0043,
+      "smoothed": 0.0202,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 58,
+      "true_label": "normal",
+      "score": 0.0032,
+      "confidence": 0.0009,
+      "smoothed": 0.0154,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 59,
+      "true_label": "normal",
+      "score": 0.0051,
+      "confidence": 0.3173,
+      "smoothed": 0.0765,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 60,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0014,
+      "smoothed": 0.0744,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 61,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0243,
+      "smoothed": 0.0696,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 62,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0228,
+      "smoothed": 0.0733,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 63,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.005,
+      "smoothed": 0.0742,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 64,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0235,
+      "smoothed": 0.0154,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 65,
+      "true_label": "normal",
+      "score": 0.003,
+      "confidence": 0.0004,
+      "smoothed": 0.0152,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 66,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0032,
+      "smoothed": 0.011,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 67,
+      "true_label": "normal",
+      "score": 0.0046,
+      "confidence": 0.0792,
+      "smoothed": 0.0223,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 68,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0107,
+      "smoothed": 0.0234,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 69,
+      "true_label": "normal",
+      "score": 0.0039,
+      "confidence": 0.0096,
+      "smoothed": 0.0206,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 70,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0022,
+      "smoothed": 0.021,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 71,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.005,
+      "smoothed": 0.0213,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 72,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0141,
+      "smoothed": 0.0083,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 73,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0027,
+      "smoothed": 0.0067,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 74,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0014,
+      "smoothed": 0.0051,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 75,
+      "true_label": "normal",
+      "score": 0.0048,
+      "confidence": 0.1685,
+      "smoothed": 0.0383,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 76,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0016,
+      "smoothed": 0.0377,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 77,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0443,
+      "smoothed": 0.0437,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 78,
+      "true_label": "normal",
+      "score": 0.0039,
+      "confidence": 0.0074,
+      "smoothed": 0.0446,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 79,
+      "true_label": "normal",
+      "score": 0.0048,
+      "confidence": 0.1631,
+      "smoothed": 0.077,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 80,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0259,
+      "smoothed": 0.0485,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 81,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0358,
+      "smoothed": 0.0553,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 82,
+      "true_label": "normal",
+      "score": 0.0039,
+      "confidence": 0.0074,
+      "smoothed": 0.0479,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 83,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0015,
+      "smoothed": 0.0468,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 84,
+      "true_label": "normal",
+      "score": 0.0026,
+      "confidence": 0.0001,
+      "smoothed": 0.0142,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 85,
+      "true_label": "normal",
+      "score": 0.0032,
+      "confidence": 0.0008,
+      "smoothed": 0.0091,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 86,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0029,
+      "smoothed": 0.0026,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 87,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0059,
+      "smoothed": 0.0022,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 88,
+      "true_label": "normal",
+      "score": 0.0026,
+      "confidence": 0.0001,
+      "smoothed": 0.002,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 89,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0185,
+      "smoothed": 0.0056,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 90,
+      "true_label": "normal",
+      "score": 0.0045,
+      "confidence": 0.0634,
+      "smoothed": 0.0182,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 91,
+      "true_label": "normal",
+      "score": 0.0053,
+      "confidence": 0.5663,
+      "smoothed": 0.1308,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 92,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0164,
+      "smoothed": 0.1329,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 93,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0163,
+      "smoothed": 0.1362,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 94,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0014,
+      "smoothed": 0.1328,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 95,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0147,
+      "smoothed": 0.123,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 96,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0207,
+      "smoothed": 0.0139,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 97,
+      "true_label": "normal",
+      "score": 0.0045,
+      "confidence": 0.076,
+      "smoothed": 0.0258,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 98,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0131,
+      "smoothed": 0.0252,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 99,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0032,
+      "smoothed": 0.0256,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0053
+    },
+    {
+      "t": 100,
+      "true_label": "anomaly",
+      "score": 0.0525,
+      "confidence": 1.0,
+      "smoothed": 0.2226,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0054
+    },
+    {
+      "t": 101,
+      "true_label": "anomaly",
+      "score": 0.0548,
+      "confidence": 1.0,
+      "smoothed": 0.4185,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0056
+    },
+    {
+      "t": 102,
+      "true_label": "anomaly",
+      "score": 0.0527,
+      "confidence": 1.0,
+      "smoothed": 0.6033,
+      "is_anomaly": true,
+      "streak": 1,
+      "threshold": 0.0058
+    },
+    {
+      "t": 103,
+      "true_label": "anomaly",
+      "score": 0.054,
+      "confidence": 1.0,
+      "smoothed": 0.8006,
+      "is_anomaly": true,
+      "streak": 2,
+      "threshold": 0.0061
+    },
+    {
+      "t": 104,
+      "true_label": "anomaly",
+      "score": 0.0533,
+      "confidence": 1.0,
+      "smoothed": 1.0,
+      "is_anomaly": true,
+      "streak": 3,
+      "threshold": 0.0065
+    },
+    {
+      "t": 105,
+      "true_label": "anomaly",
+      "score": 0.0525,
+      "confidence": 1.0,
+      "smoothed": 1.0,
+      "is_anomaly": true,
+      "streak": 4,
+      "threshold": 0.0069
+    },
+    {
+      "t": 106,
+      "true_label": "anomaly",
+      "score": 0.0523,
+      "confidence": 1.0,
+      "smoothed": 1.0,
+      "is_anomaly": true,
+      "streak": 5,
+      "threshold": 0.0073
+    },
+    {
+      "t": 107,
+      "true_label": "anomaly",
+      "score": 0.0521,
+      "confidence": 1.0,
+      "smoothed": 1.0,
+      "is_anomaly": true,
+      "streak": 6,
+      "threshold": 0.0078
+    },
+    {
+      "t": 108,
+      "true_label": "anomaly",
+      "score": 0.0519,
+      "confidence": 1.0,
+      "smoothed": 1.0,
+      "is_anomaly": true,
+      "streak": 7,
+      "threshold": 0.0084
+    },
+    {
+      "t": 109,
+      "true_label": "anomaly",
+      "score": 0.0531,
+      "confidence": 1.0,
+      "smoothed": 1.0,
+      "is_anomaly": true,
+      "streak": 8,
+      "threshold": 0.0089
+    },
+    {
+      "t": 110,
+      "true_label": "normal",
+      "score": 0.0047,
+      "confidence": 0.0,
+      "smoothed": 0.8,
+      "is_anomaly": true,
+      "streak": 9,
+      "threshold": 0.0095
+    },
+    {
+      "t": 111,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0,
+      "smoothed": 0.6,
+      "is_anomaly": true,
+      "streak": 10,
+      "threshold": 0.01
+    },
+    {
+      "t": 112,
+      "true_label": "normal",
+      "score": 0.0039,
+      "confidence": 0.0,
+      "smoothed": 0.4,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0106
+    },
+    {
+      "t": 113,
+      "true_label": "normal",
+      "score": 0.0046,
+      "confidence": 0.0,
+      "smoothed": 0.2,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0111
+    },
+    {
+      "t": 114,
+      "true_label": "normal",
+      "score": 0.005,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0116
+    },
+    {
+      "t": 115,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0122
+    },
+    {
+      "t": 116,
+      "true_label": "normal",
+      "score": 0.0033,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0127
+    },
+    {
+      "t": 117,
+      "true_label": "normal",
+      "score": 0.0031,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0132
+    },
+    {
+      "t": 118,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0137
+    },
+    {
+      "t": 119,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0141
+    },
+    {
+      "t": 120,
+      "true_label": "normal",
+      "score": 0.0046,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0146
+    },
+    {
+      "t": 121,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0151
+    },
+    {
+      "t": 122,
+      "true_label": "normal",
+      "score": 0.0046,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0156
+    },
+    {
+      "t": 123,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.016
+    },
+    {
+      "t": 124,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0165
+    },
+    {
+      "t": 125,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0169
+    },
+    {
+      "t": 126,
+      "true_label": "normal",
+      "score": 0.0032,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0174
+    },
+    {
+      "t": 127,
+      "true_label": "normal",
+      "score": 0.0039,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0178
+    },
+    {
+      "t": 128,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0182
+    },
+    {
+      "t": 129,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0186
+    },
+    {
+      "t": 130,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0191
+    },
+    {
+      "t": 131,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0195
+    },
+    {
+      "t": 132,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0199
+    },
+    {
+      "t": 133,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0203
+    },
+    {
+      "t": 134,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0207
+    },
+    {
+      "t": 135,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.021
+    },
+    {
+      "t": 136,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0214
+    },
+    {
+      "t": 137,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0218
+    },
+    {
+      "t": 138,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0222
+    },
+    {
+      "t": 139,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0225
+    },
+    {
+      "t": 140,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0229
+    },
+    {
+      "t": 141,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0233
+    },
+    {
+      "t": 142,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0236
+    },
+    {
+      "t": 143,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.024
+    },
+    {
+      "t": 144,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0243
+    },
+    {
+      "t": 145,
+      "true_label": "normal",
+      "score": 0.0053,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0246
+    },
+    {
+      "t": 146,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.025
+    },
+    {
+      "t": 147,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0253
+    },
+    {
+      "t": 148,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0256
+    },
+    {
+      "t": 149,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.026
+    },
+    {
+      "t": 150,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0263
+    },
+    {
+      "t": 151,
+      "true_label": "normal",
+      "score": 0.0032,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0265
+    },
+    {
+      "t": 152,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0267
+    },
+    {
+      "t": 153,
+      "true_label": "normal",
+      "score": 0.0046,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0269
+    },
+    {
+      "t": 154,
+      "true_label": "normal",
+      "score": 0.0044,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.027
+    },
+    {
+      "t": 155,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0271
+    },
+    {
+      "t": 156,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0271
+    },
+    {
+      "t": 157,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0271
+    },
+    {
+      "t": 158,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0271
+    },
+    {
+      "t": 159,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.027
+    },
+    {
+      "t": 160,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0268
+    },
+    {
+      "t": 161,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0266
+    },
+    {
+      "t": 162,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0265
+    },
+    {
+      "t": 163,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0263
+    },
+    {
+      "t": 164,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0262
+    },
+    {
+      "t": 165,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.026
+    },
+    {
+      "t": 166,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0259
+    },
+    {
+      "t": 167,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0257
+    },
+    {
+      "t": 168,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0256
+    },
+    {
+      "t": 169,
+      "true_label": "normal",
+      "score": 0.0029,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0254
+    },
+    {
+      "t": 170,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0253
+    },
+    {
+      "t": 171,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0252
+    },
+    {
+      "t": 172,
+      "true_label": "normal",
+      "score": 0.0045,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.025
+    },
+    {
+      "t": 173,
+      "true_label": "normal",
+      "score": 0.0032,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0249
+    },
+    {
+      "t": 174,
+      "true_label": "normal",
+      "score": 0.0047,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0247
+    },
+    {
+      "t": 175,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0246
+    },
+    {
+      "t": 176,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0245
+    },
+    {
+      "t": 177,
+      "true_label": "normal",
+      "score": 0.0051,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0243
+    },
+    {
+      "t": 178,
+      "true_label": "normal",
+      "score": 0.0037,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0242
+    },
+    {
+      "t": 179,
+      "true_label": "normal",
+      "score": 0.0033,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0241
+    },
+    {
+      "t": 180,
+      "true_label": "normal",
+      "score": 0.0033,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0239
+    },
+    {
+      "t": 181,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0238
+    },
+    {
+      "t": 182,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0237
+    },
+    {
+      "t": 183,
+      "true_label": "normal",
+      "score": 0.0034,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0236
+    },
+    {
+      "t": 184,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0234
+    },
+    {
+      "t": 185,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0233
+    },
+    {
+      "t": 186,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0232
+    },
+    {
+      "t": 187,
+      "true_label": "normal",
+      "score": 0.0043,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0231
+    },
+    {
+      "t": 188,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0229
+    },
+    {
+      "t": 189,
+      "true_label": "normal",
+      "score": 0.0047,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0228
+    },
+    {
+      "t": 190,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0227
+    },
+    {
+      "t": 191,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0226
+    },
+    {
+      "t": 192,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0225
+    },
+    {
+      "t": 193,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0223
+    },
+    {
+      "t": 194,
+      "true_label": "normal",
+      "score": 0.004,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0222
+    },
+    {
+      "t": 195,
+      "true_label": "normal",
+      "score": 0.0041,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0221
+    },
+    {
+      "t": 196,
+      "true_label": "normal",
+      "score": 0.0042,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.022
+    },
+    {
+      "t": 197,
+      "true_label": "normal",
+      "score": 0.0045,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0219
+    },
+    {
+      "t": 198,
+      "true_label": "normal",
+      "score": 0.0046,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0218
+    },
+    {
+      "t": 199,
+      "true_label": "normal",
+      "score": 0.0036,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0217
+    },
+    {
+      "t": 200,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0215
+    },
+    {
+      "t": 201,
+      "true_label": "normal",
+      "score": 0.0039,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0214
+    },
+    {
+      "t": 202,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0213
+    },
+    {
+      "t": 203,
+      "true_label": "normal",
+      "score": 0.0031,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0212
+    },
+    {
+      "t": 204,
+      "true_label": "normal",
+      "score": 0.0038,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0211
+    },
+    {
+      "t": 205,
+      "true_label": "normal",
+      "score": 0.0054,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.021
+    },
+    {
+      "t": 206,
+      "true_label": "normal",
+      "score": 0.0045,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0209
+    },
+    {
+      "t": 207,
+      "true_label": "normal",
+      "score": 0.0046,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0208
+    },
+    {
+      "t": 208,
+      "true_label": "normal",
+      "score": 0.0035,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0207
+    },
+    {
+      "t": 209,
+      "true_label": "normal",
+      "score": 0.0033,
+      "confidence": 0.0,
+      "smoothed": 0.0,
+      "is_anomaly": false,
+      "streak": 0,
+      "threshold": 0.0206
+    }
+  ],
+  "tests": [
+    {
+      "name": "Gradual drift: confidence separates after adaptation",
+      "passed": true
+    },
+    {
+      "name": "Sudden shift: false alarm rate after 50-sample adaptation",
+      "passed": true
+    },
+    {
+      "name": "Oscillating drift: confidence stays bounded",
+      "passed": true
+    },
+    {
+      "name": "Pure noise (33x normal std): detection rate",
+      "passed": true
+    },
+    {
+      "name": "Overlapping clusters (1.5\u03c3 separation): F1",
+      "passed": true
+    },
+    {
+      "name": "Very sparse anomalies (0.5%): recall",
+      "passed": true
+    },
+    {
+      "name": "Identical anomaly repeated 50x: consistent scoring",
+      "passed": true
+    },
+    {
+      "name": "Zero vector input: no crash",
+      "passed": true
+    },
+    {
+      "name": "Huge values (1e6): finite output",
+      "passed": true
+    },
+    {
+      "name": "5000-sample stability: threshold drift < 20%",
+      "passed": true
+    },
+    {
+      "name": "Same input \u2192 same score (deterministic)",
+      "passed": true
+    },
+    {
+      "name": "Prototype movement during normal operation: small",
+      "passed": true
+    },
+    {
+      "name": "1000 normal samples: false alarm rate < 5%",
+      "passed": true
+    },
+    {
+      "name": "Logging: anomaly burst detected in event trace",
+      "passed": true
+    },
+    {
+      "name": "Logging: false alarms stop after burst ends",
+      "passed": true
+    }
+  ]
+}
