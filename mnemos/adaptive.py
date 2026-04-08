@@ -1,27 +1,10 @@
 """
 Hebbian Adaptive Head — plug into any pre-trained model.
 
-The pitch:
-  "You trained your model with PyTorch. Now plug in Mnemos.
-   Your model adapts to new data without retraining,
-   without forgetting, using 100x less compute."
-
-How it works:
-  1. You have a pre-trained backbone (ResNet, CNN, whatever)
-  2. Freeze it. Remove the classification head.
-  3. Plug in AdaptiveHead instead.
-  4. Feed features through → Hebbian prototypes learn instantly
-  5. New classes? Just show examples. No retraining.
-  6. Distribution drift? Prototypes adapt continuously.
-  7. All without backprop. All with local Hebbian rules.
-
-Why companies care:
-  - Fine-tuning with backprop: store gradients for every parameter,
-    compute backward pass through every layer, run optimizer.
-    Cost: O(parameters × samples × epochs)
-  - Hebbian adaptation: update a few prototypes with outer product.
-    Cost: O(prototypes × feature_dim)
-    That's 100-1000x less compute.
+v5: Prototype replay for add_class() (Opus Option B).
+    Stores N_ANCHORS representative vectors per class after fit().
+    Uses them during add_class() to defend old territory.
+    No stored training data. No gradients. Pure Hebbian.
 
 Author: Gustav Gausepohl
 License: Mnemos Dual License (free research, commercial requires license)
@@ -29,450 +12,465 @@ License: Mnemos Dual License (free research, commercial requires license)
 
 import numpy as np
 import time
-from collections import defaultdict
 
 
 class AdaptiveHead:
-    """
-    Hebbian classification head that replaces backprop fine-tuning.
-
-    Attach this to any frozen feature extractor. It learns to
-    classify using competitive multi-prototype matching with
-    specificity penalty — the same mechanism that beats
-    IsolationForest on anomaly detection.
-
-    Parameters
-    ----------
-    n_proto : int
-        Prototypes per class. More = captures more variation.
-        3-5 typical. Higher for complex distributions.
-    adapt_lr : float
-        Online adaptation learning rate. How fast prototypes
-        move toward new examples. 0.01 = gentle, 0.1 = aggressive.
-    seed : int
-        Random seed.
-
-    Example
-    -------
-    >>> # Assume backbone gives 512-dim features
-    >>> head = mnemos.AdaptiveHead(n_proto=5)
-    >>>
-    >>> # Learn from labeled features (no backprop)
-    >>> head.fit(train_features, train_labels)
-    >>>
-    >>> # Predict
-    >>> predictions = head.predict(test_features)
-    >>>
-    >>> # Add a new class without touching the backbone
-    >>> head.add_class("cat", cat_features)
-    >>>
-    >>> # Online adaptation (one sample at a time)
-    >>> head.adapt(new_feature, label="cat")
-    """
-
-    def __init__(self, n_proto=5, adapt_lr=0.01, seed=42):
+    def __init__(self, n_proto=5, adapt_lr=0.01,
+                 contrastive_epochs=10, contrastive_lr=0.01,
+                 contrastive_margin=0.7, anti_lr_scale=1.0,
+                 add_refine_epochs=10, add_margin=0.05,
+                 add_push_strength=0.5, add_gentle_strength=0.1,
+                 max_drift=0.1, n_anchors=5, seed=42):
         self.rng = np.random.RandomState(seed)
         self.n_proto = n_proto
         self.adapt_lr = adapt_lr
+        self.contrastive_epochs = contrastive_epochs
+        self.contrastive_lr = contrastive_lr
+        self.contrastive_margin = contrastive_margin
+        self.anti_lr_scale = anti_lr_scale
+        self.add_refine_epochs = add_refine_epochs
+        self.add_margin = add_margin
+        self.add_push_strength = add_push_strength
+        self.add_gentle_strength = add_gentle_strength
+        self.max_drift = max_drift
+        self.n_anchors = n_anchors
 
-        # Per-class prototypes: class_name → list of prototype vectors
         self.prototypes = {}
         self.proto_counts = {}
-
-        # Specificity thresholds (homeostatic)
+        self.proto_radius = {}
         self.thresholds = {}
         self.win_counts = {}
         self.total_predictions = 0
-
-        # Per-prototype local radius (from AnomalyDetector)
-        self.proto_radius = {}
-
-        # Tracking
         self.classes = []
         self.feat_dim = None
         self._fitted = False
-
-        # Compute tracking (for efficiency comparison)
         self._ops_count = 0
         self._fit_time = 0
         self._predict_time = 0
         self._n_adapted = 0
+        self._all_protos = None
+        self._proto_labels = None
+
+        # Replay anchors: class_name -> (n_anchors, D) array
+        # These are the compressed memory of old classes.
+        # Not training data — learned Hebbian summaries.
+        self._anchors = {}
+
+    # ── Spherical geometry ──
+
+    def _spherical_pull(self, n, x, eta):
+        cos = float(n @ x)
+        tangent = x - cos * n
+        n_new = n + eta * tangent
+        nrm = np.linalg.norm(n_new)
+        return n_new / nrm if nrm > 1e-8 else n
+
+    def _spherical_push(self, n, o, eta):
+        cos = float(n @ o)
+        if cos < -0.99:
+            return n
+        tangent = n - cos * o
+        if np.linalg.norm(tangent) < 1e-8:
+            return n
+        n_new = n + eta * tangent
+        nrm = np.linalg.norm(n_new)
+        return n_new / nrm if nrm > 1e-8 else n
+
+    # ── Internal helpers ──
+
+    def _build_flat(self):
+        protos, labels = [], []
+        for i, name in enumerate(self.classes):
+            for p in self.prototypes[name]:
+                protos.append(p)
+                labels.append(i)
+        self._all_protos = np.array(protos, dtype=np.float32)
+        self._proto_labels = np.array(labels, dtype=np.int32)
+
+    def _sync_from_flat(self):
+        idx = 0
+        for name in self.classes:
+            for k in range(len(self.prototypes[name])):
+                self.prototypes[name][k] = self._all_protos[idx].copy()
+                idx += 1
+
+    def _cluster(self, features, n_proto):
+        n = len(features)
+        n_proto = min(n_proto, n)
+        init_idx = self.rng.choice(n, size=n_proto, replace=False)
+        protos = [features[i].copy() for i in init_idx]
+        assignments = [[] for _ in range(n_proto)]
+        for _ in range(5):
+            assignments = [[] for _ in range(n_proto)]
+            P = np.array(protos)
+            sims = features @ P.T
+            best = np.argmax(sims, axis=1)
+            for i, k in enumerate(best):
+                assignments[k].append(i)
+            for k in range(n_proto):
+                if assignments[k]:
+                    protos[k] = features[assignments[k]].mean(axis=0)
+                    nrm = np.linalg.norm(protos[k])
+                    if nrm > 0:
+                        protos[k] /= nrm
+        return protos, assignments
+
+    def _local_radius(self, features, protos, assignments):
+        radii = []
+        for k in range(len(protos)):
+            if assignments[k]:
+                dists = np.linalg.norm(features[assignments[k]] - protos[k], axis=1)
+                radii.append(float(dists.mean() + 2.0 * dists.std()))
+            else:
+                radii.append(1.0)
+        return radii
+
+    def _build_anchors(self, features, labels):
+        """
+        Build replay anchors for all classes from training features.
+        Anchors = n_anchors prototypes per class, learned by clustering.
+        Stored separately from inference prototypes.
+        Memory: n_classes * n_anchors * D * 4 bytes (tiny).
+        """
+        for label in sorted(set(labels)):
+            name = str(label)
+            mask = labels == label
+            class_feats = features[mask]
+            n = min(self.n_anchors, len(class_feats))
+            anchors, _ = self._cluster(class_feats, n)
+            self._anchors[name] = np.array(anchors, dtype=np.float32)
+
+    def _all_anchors(self):
+        """Flat array of all anchors with class labels."""
+        if not self._anchors:
+            return np.zeros((0, self.feat_dim or 512), dtype=np.float32), []
+        vecs, names = [], []
+        for name, ancs in self._anchors.items():
+            for a in ancs:
+                vecs.append(a)
+                names.append(name)
+        return np.array(vecs, dtype=np.float32), names
+
+    def _lvq_refine(self, features, labels, verbose):
+        self._build_flat()
+        P = self._all_protos
+        L = self._proto_labels
+        eta = self.contrastive_lr
+        alpha = self.anti_lr_scale
+        margin = self.contrastive_margin
+        N = len(features)
+        label_to_idx = {name: i for i, name in enumerate(self.classes)}
+        for epoch in range(self.contrastive_epochs):
+            perm = self.rng.permutation(N)
+            n_updates = 0
+            for i in perm:
+                x = features[i]
+                y = label_to_idx[str(labels[i])]
+                sims = P @ x
+                correct_mask = (L == y)
+                wrong_mask = ~correct_mask
+                if not correct_mask.any() or not wrong_mask.any():
+                    continue
+                winner_idx   = int(np.argmax(np.where(correct_mask, sims, -np.inf)))
+                confuser_idx = int(np.argmax(np.where(wrong_mask,   sims, -np.inf)))
+                d_w = sims[winner_idx]
+                d_c = sims[confuser_idx]
+                ratio = min(d_w / d_c, d_c / d_w) if d_w > 0 and d_c > 0 else 0.0
+                if ratio > margin:
+                    P[winner_idx]   = self._spherical_pull(P[winner_idx], x, eta)
+                    P[confuser_idx] = self._spherical_push(P[confuser_idx], x, eta * alpha)
+                    n_updates += 1
+            if verbose:
+                sample = self.rng.choice(N, size=min(200, N), replace=False)
+                correct = sum(
+                    self.classes[L[int(np.argmax(P @ features[i]))]] == str(labels[i])
+                    for i in sample)
+                print(f"  LVQ epoch {epoch+1}/{self.contrastive_epochs}: "
+                      f"{n_updates} updates, ~{correct/len(sample):.1%} train acc")
+        self._sync_from_flat()
+
+    # ── Public API ──
 
     def fit(self, features, labels, verbose=True):
-        """
-        Learn class prototypes from labeled features.
-
-        No backprop. No gradient computation. No optimizer.
-        Just competitive Hebbian clustering: prototypes move
-        toward their assigned examples.
-
-        Parameters
-        ----------
-        features : ndarray, shape (N, feat_dim)
-            Feature vectors from a frozen backbone.
-        labels : array-like, shape (N,)
-            Class labels (int or str).
-
-        Returns
-        -------
-        dict with training statistics.
-        """
         t0 = time.time()
         features = np.asarray(features, dtype=np.float32)
-        labels = np.asarray(labels)
+        labels   = np.asarray(labels)
         N, D = features.shape
         self.feat_dim = D
-
-        # Normalize features
         norms = np.linalg.norm(features, axis=1, keepdims=True) + 1e-8
         features_normed = features / norms
-
-        unique_labels = sorted(set(labels))
-
-        for label in unique_labels:
+        for label in sorted(set(labels)):
             name = str(label)
             mask = labels == label
             class_feats = features_normed[mask]
-            n_examples = len(class_feats)
-
-            if n_examples == 0:
+            if len(class_feats) == 0:
                 continue
-
-            n_proto = min(self.n_proto, n_examples)
-
-            # Initialize prototypes from random examples
-            init_idx = self.rng.choice(n_examples, size=n_proto, replace=False)
-            protos = [class_feats[i].copy() for i in init_idx]
-            counts = [1.0] * n_proto
-
-            # Competitive Hebbian clustering (5 iterations)
-            for iteration in range(5):
-                assignments = [[] for _ in range(n_proto)]
-                for i in range(n_examples):
-                    sims = [float(class_feats[i] @ p) for p in protos]
-                    best = int(np.argmax(sims))
-                    assignments[best].append(i)
-
-                for k in range(n_proto):
-                    if assignments[k]:
-                        protos[k] = class_feats[assignments[k]].mean(axis=0)
-                        norm = np.linalg.norm(protos[k])
-                        if norm > 0:
-                            protos[k] /= norm
-                        counts[k] = float(len(assignments[k]))
-
-                self._ops_count += n_examples * n_proto  # similarity ops
-
-            # Compute local radius per prototype
-            radii = []
-            for k in range(n_proto):
-                if assignments[k]:
-                    dists = [float(np.linalg.norm(class_feats[i] - protos[k]))
-                             for i in assignments[k]]
-                    radii.append(float(np.mean(dists) + 2.0 * np.std(dists)))
-                else:
-                    radii.append(1.0)
-
-            self.prototypes[name] = protos
-            self.proto_counts[name] = counts
+            protos, assignments = self._cluster(class_feats, self.n_proto)
+            radii = self._local_radius(class_feats, protos, assignments)
+            self.prototypes[name]   = protos
+            self.proto_counts[name] = [float(len(a)) for a in assignments]
             self.proto_radius[name] = radii
-            self.thresholds[name] = 0.0
-            self.win_counts[name] = 0.0
-
+            self.thresholds[name]   = 0.0
+            self.win_counts[name]   = 0.0
             if name not in self.classes:
                 self.classes.append(name)
-
+        if verbose:
+            print(f"  Initial clustering: {len(self.classes)} classes, "
+                  f"{sum(len(p) for p in self.prototypes.values())} prototypes")
+        if self.contrastive_epochs > 0:
             if verbose:
-                sizes = ", ".join(str(int(c)) for c in counts)
-                print(f"  Class '{name}': {n_proto} prototypes "
-                      f"from {n_examples} examples ({sizes})")
-
+                print(f"  Running LVQ2.1 ({self.contrastive_epochs} epochs)...")
+            self._lvq_refine(features_normed, labels, verbose)
+        # Build replay anchors from training data
+        self._build_anchors(features_normed, labels)
+        if verbose:
+            n_anchors = sum(len(a) for a in self._anchors.values())
+            print(f"  Stored {n_anchors} replay anchors "
+                  f"({self.n_anchors}/class, "
+                  f"{n_anchors * D * 4 / 1024:.1f} KB)")
         self._fitted = True
         self._fit_time = time.time() - t0
-
         if verbose:
-            print(f"  {len(self.classes)} classes, "
-                  f"{sum(len(p) for p in self.prototypes.values())} total prototypes")
-            print(f"  Fit time: {self._fit_time:.3f}s")
-            print(f"  Operations: {self._ops_count:,}")
+            print(f"  Fit time: {self._fit_time:.2f}s")
+        return {"n_classes": len(self.classes),
+                "n_prototypes": sum(len(p) for p in self.prototypes.values()),
+                "fit_time": self._fit_time}
 
-        return {
-            'n_classes': len(self.classes),
-            'n_prototypes': sum(len(p) for p in self.prototypes.values()),
-            'fit_time': self._fit_time,
-            'ops': self._ops_count,
-        }
-
-    def predict(self, features, top_k=1):
-        """
-        Predict class labels.
-
-        Compares each input against ALL prototypes of ALL classes.
-        Uses max similarity per class with specificity penalty.
-
-        Parameters
-        ----------
-        features : ndarray, shape (N, feat_dim) or (feat_dim,)
-        top_k : int
-            Return top-k predictions per sample.
-
-        Returns
-        -------
-        If top_k=1: ndarray of predicted labels, shape (N,)
-        If top_k>1: list of [(label, confidence), ...] per sample
-        """
+    def predict(self, features, top_k=1, update_thresholds=True):
         if not self._fitted:
             raise RuntimeError("Call .fit() first")
-
-        t0 = time.time()
         features = np.asarray(features, dtype=np.float32)
         if features.ndim == 1:
             features = features.reshape(1, -1)
-
         norms = np.linalg.norm(features, axis=1, keepdims=True) + 1e-8
         features = features / norms
-
-        N = len(features)
+        if self._all_protos is not None and top_k == 1:
+            sims = features @ self._all_protos.T
+            best = np.argmax(sims, axis=1)
+            return np.array([self.classes[self._proto_labels[i]] for i in best])
         predictions = []
-
-        for i in range(N):
-            x = features[i]
-
-            # Best similarity per class (max across prototypes)
-            class_sims = {}
-            for name, protos in self.prototypes.items():
-                best_sim = max(float(x @ p) for p in protos)
-                class_sims[name] = best_sim
-                self._ops_count += len(protos)
-
-            # Specificity penalty
-            if class_sims:
-                mean_sim = np.mean(list(class_sims.values()))
-                specific = {}
-                for name, sim in class_sims.items():
-                    specific[name] = sim - mean_sim - self.thresholds.get(name, 0.0)
-
-                # Homeostatic threshold update
-                self.total_predictions += 1
-                winner = max(specific, key=specific.get)
-                self.win_counts[winner] = self.win_counts.get(winner, 0) + 1
-                target = 1.0 / max(len(self.prototypes), 1)
-                for name in self.prototypes:
-                    rate = self.win_counts.get(name, 0) / max(self.total_predictions, 1)
-                    self.thresholds[name] += 0.002 * (rate - target)
-
-                if top_k == 1:
-                    predictions.append(winner)
-                else:
-                    sorted_preds = sorted(specific.items(),
-                                          key=lambda x: x[1], reverse=True)
-                    predictions.append(sorted_preds[:top_k])
+        for x in features:
+            class_sims = {name: max(float(x @ p) for p in protos)
+                          for name, protos in self.prototypes.items()}
+            if top_k == 1:
+                predictions.append(max(class_sims, key=class_sims.get))
             else:
-                predictions.append("?" if top_k == 1 else [("?", 0.0)])
-
-        self._predict_time += time.time() - t0
-
+                predictions.append(sorted(class_sims.items(),
+                                          key=lambda kv: kv[1], reverse=True)[:top_k])
         if top_k == 1:
             return np.array(predictions)
         return predictions
 
     def accuracy(self, features, labels):
-        """Compute classification accuracy."""
-        preds = self.predict(features)
-        labels_str = np.array([str(l) for l in labels])
-        return float((preds == labels_str).mean())
+        preds = self.predict(features, update_thresholds=False)
+        return float((preds == np.array([str(l) for l in labels])).mean())
 
     def add_class(self, name, features, verbose=True):
         """
-        Add a new class WITHOUT retraining existing classes.
+        Three-phase Hebbian class addition with prototype replay.
 
-        This is the key advantage over backprop fine-tuning:
-        backprop must retrain the entire head (and often the backbone)
-        to add a class. Mnemos just adds new prototypes.
-
-        Parameters
-        ----------
-        name : str
-            New class name.
-        features : ndarray, shape (N, feat_dim)
-            Example features for the new class.
+        Phase 1: cluster new class
+        Phase 2: new protos pushed away from old territory using
+                 BOTH new examples AND old anchor replay
+        Phase 3: old protos nudged away from new class (drift-capped)
+                 defended by anchor replay
         """
         t0 = time.time()
         name = str(name)
         features = np.asarray(features, dtype=np.float32)
         norms = np.linalg.norm(features, axis=1, keepdims=True) + 1e-8
         features = features / norms
+        N = len(features)
 
-        n = len(features)
-        n_proto = min(self.n_proto, n)
+        # Phase 1: cluster new class
+        new_protos_list, assignments = self._cluster(features, self.n_proto)
+        new_radii = self._local_radius(features, new_protos_list, assignments)
+        new_protos = np.array(new_protos_list, dtype=np.float32)
 
-        # Initialize from random examples
-        init_idx = self.rng.choice(n, size=n_proto, replace=False)
-        protos = [features[i].copy() for i in init_idx]
-        counts = [1.0] * n_proto
+        old_protos_snap = self._all_protos.copy() if self._all_protos is not None                           else np.zeros((0, features.shape[1]), dtype=np.float32)
 
-        # Cluster
-        for _ in range(5):
-            assignments = [[] for _ in range(n_proto)]
-            for i in range(n):
-                sims = [float(features[i] @ p) for p in protos]
-                assignments[np.argmax(sims)].append(i)
-            for k in range(n_proto):
-                if assignments[k]:
-                    protos[k] = features[assignments[k]].mean(axis=0)
-                    norm = np.linalg.norm(protos[k])
-                    if norm > 0:
-                        protos[k] /= norm
-                    counts[k] = float(len(assignments[k]))
+        # Get anchor replay vectors
+        anchor_vecs, anchor_labels = self._all_anchors()
+        has_anchors = len(anchor_vecs) > 0
 
-        # Local radius
-        radii = []
-        for k in range(n_proto):
-            if assignments[k]:
-                dists = [float(np.linalg.norm(features[i] - protos[k]))
-                         for i in assignments[k]]
-                radii.append(float(np.mean(dists) + 2.0 * np.std(dists)))
-            else:
-                radii.append(1.0)
+        eta    = self.contrastive_lr
+        push   = self.add_push_strength
+        gentle = self.add_gentle_strength
+        marg   = self.add_margin
 
-        self.prototypes[name] = protos
-        self.proto_counts[name] = counts
-        self.proto_radius[name] = radii
-        self.thresholds[name] = 0.0
-        self.win_counts[name] = 0.0
+        # Phase 2: new protos avoid old territory
+        # Interleave new examples with anchor replay
+        if len(old_protos_snap) > 0:
+            for epoch in range(self.add_refine_epochs):
+                perm = self.rng.permutation(N)
+                for i in perm:
+                    x = features[i]
+                    new_sims = new_protos @ x
+                    old_sims = old_protos_snap @ x
+                    winner_new  = int(np.argmax(new_sims))
+                    nearest_old = int(np.argmax(old_sims))
 
+                    # Spherical pull toward new example
+                    new_protos[winner_new] = self._spherical_pull(
+                        new_protos[winner_new], x, eta)
+
+                    # Spherical push away from nearest old proto
+                    margin = float(new_protos[winner_new] @ x) - old_sims[nearest_old]
+                    if margin < marg:
+                        new_protos[winner_new] = self._spherical_push(
+                            new_protos[winner_new],
+                            old_protos_snap[nearest_old],
+                            eta * push)
+
+                # Replay: also push new protos away from anchor directions
+                if has_anchors:
+                    perm_a = self.rng.permutation(len(anchor_vecs))
+                    for i in perm_a:
+                        a = anchor_vecs[i]
+                        new_sims = new_protos @ a
+                        old_sims = old_protos_snap @ a
+                        winner_new  = int(np.argmax(new_sims))
+                        nearest_old = int(np.argmax(old_sims))
+                        margin = float(new_protos[winner_new] @ a) - old_sims[nearest_old]
+                        if margin < marg:
+                            new_protos[winner_new] = self._spherical_push(
+                                new_protos[winner_new],
+                                old_protos_snap[nearest_old],
+                                eta * push * 0.5)  # gentler for replay
+
+        # Phase 3: old protos make room, defended by anchors
+        if self._all_protos is not None and len(self._all_protos) > 0:
+            drift = np.zeros(len(self._all_protos), dtype=np.float32)
+            P = self._all_protos
+
+            for epoch in range(self.add_refine_epochs):
+                # Push from new examples
+                perm = self.rng.permutation(N)
+                for i in perm:
+                    x = features[i]
+                    old_sims = P @ x
+                    new_sims = new_protos @ x
+                    nearest_old  = int(np.argmax(old_sims))
+                    best_new_sim = float(np.max(new_sims))
+                    if old_sims[nearest_old] > best_new_sim - marg:
+                        cos = float(P[nearest_old] @ x)
+                        tangent = P[nearest_old] - cos * x
+                        nrm_t = np.linalg.norm(tangent)
+                        if nrm_t > 1e-8:
+                            delta = eta * gentle * tangent
+                            delta_mag = float(np.linalg.norm(delta))
+                            if drift[nearest_old] + delta_mag <= self.max_drift:
+                                P[nearest_old] = P[nearest_old] + delta
+                                nrm = np.linalg.norm(P[nearest_old])
+                                if nrm > 1e-8:
+                                    P[nearest_old] /= nrm
+                                drift[nearest_old] += delta_mag
+
+                # Anchor replay: pull old protos back toward their anchor directions
+                # This is the key defense — anchors resist drift
+                if has_anchors:
+                    label_to_proto_indices = {}
+                    for idx, lbl in enumerate(self.classes):
+                        label_to_proto_indices[lbl] = [
+                            j for j in range(len(self._proto_labels))
+                            if self._proto_labels[j] == idx
+                        ]
+                    for i, a in enumerate(anchor_vecs):
+                        lbl = anchor_labels[i]
+                        if lbl not in label_to_proto_indices:
+                            continue
+                        proto_idxs = label_to_proto_indices[lbl]
+                        if not proto_idxs:
+                            continue
+                        # Find nearest proto of same class to this anchor
+                        anchor_sims = [float(P[j] @ a) for j in proto_idxs]
+                        nearest_same = proto_idxs[int(np.argmax(anchor_sims))]
+                        # Pull it back toward anchor (resist drift)
+                        P[nearest_same] = self._spherical_pull(
+                            P[nearest_same], a, eta * gentle * 0.5)
+
+            self._sync_from_flat()
+
+        # Register new class
+        self.prototypes[name]   = [new_protos[k].copy() for k in range(len(new_protos))]
+        self.proto_counts[name] = [float(len(a)) for a in assignments]
+        self.proto_radius[name] = new_radii
+        self.thresholds[name]   = float(np.mean(list(self.thresholds.values())))                                    if self.thresholds else 0.0
+        self.win_counts[name]   = self.total_predictions / max(len(self.prototypes) + 1, 1)
         if name not in self.classes:
             self.classes.append(name)
 
+        # Build anchors for new class too
+        self._anchors[name] = np.array(
+            self._cluster(features, min(self.n_anchors, N))[0], dtype=np.float32)
+
+        self._build_flat()
+
         add_time = time.time() - t0
         if verbose:
-            print(f"  Added class '{name}': {n_proto} prototypes "
-                  f"from {n} examples in {add_time:.4f}s")
-
-        return {'time': add_time, 'n_proto': n_proto}
+            print(f"  Added class '{name}': {len(new_protos)} prototypes "
+                  f"from {N} examples in {add_time:.3f}s")
+        return {"time": add_time, "n_proto": len(new_protos)}
 
     def adapt(self, feature, label, lr=None):
-        """
-        Online adaptation: update prototypes from a single example.
-
-        This is continuous learning. The model improves with every
-        new example, without storing gradients, without backward
-        passes, without retraining.
-
-        Parameters
-        ----------
-        feature : ndarray, shape (feat_dim,)
-        label : str or int
-            True class label.
-        lr : float or None
-            Learning rate. Uses self.adapt_lr if None.
-        """
         lr = lr or self.adapt_lr
         label = str(label)
         feature = np.asarray(feature, dtype=np.float32)
         norm = np.linalg.norm(feature)
         if norm > 0:
             feature = feature / norm
-
         if label not in self.prototypes:
-            # New class from single example
-            self.prototypes[label] = [feature.copy()]
+            self.prototypes[label]   = [feature.copy()]
             self.proto_counts[label] = [1.0]
             self.proto_radius[label] = [1.0]
-            self.thresholds[label] = 0.0
-            self.win_counts[label] = 0.0
+            self.thresholds[label]   = 0.0
+            self.win_counts[label]   = 0.0
             if label not in self.classes:
                 self.classes.append(label)
             self._n_adapted += 1
+            self._build_flat()
             return
-
-        # Find nearest prototype of the correct class
         protos = self.prototypes[label]
-        sims = [float(feature @ p) for p in protos]
+        sims   = [float(feature @ p) for p in protos]
         winner = int(np.argmax(sims))
-
-        # Hebbian update: move toward example
-        protos[winner] += lr * (feature - protos[winner])
-        norm = np.linalg.norm(protos[winner])
-        if norm > 0:
-            protos[winner] /= norm
-
+        protos[winner] = self._spherical_pull(protos[winner], feature, lr)
         self.proto_counts[label][winner] += 1
         self._n_adapted += 1
-        self._ops_count += len(protos)
+        self._build_flat()
 
     def forget_class(self, name):
-        """Remove a class entirely."""
         name = str(name)
         if name in self.prototypes:
             del self.prototypes[name]
             del self.proto_counts[name]
             del self.proto_radius[name]
-            if name in self.thresholds:
-                del self.thresholds[name]
-            if name in self.win_counts:
-                del self.win_counts[name]
+            self.thresholds.pop(name, None)
+            self.win_counts.pop(name, None)
+            self._anchors.pop(name, None)
             if name in self.classes:
                 self.classes.remove(name)
+            self._build_flat()
 
     def compute_savings(self, backbone_params=None, n_samples=None):
-        """
-        Estimate compute savings vs backprop fine-tuning.
-
-        Parameters
-        ----------
-        backbone_params : int or None
-            Number of parameters in the backbone (e.g., 11M for ResNet-18).
-            If None, estimates from feature dim.
-        n_samples : int or None
-            Number of adaptation samples. If None, uses actual count.
-
-        Returns
-        -------
-        dict with estimated savings.
-        """
-        n_samples = n_samples or max(self._n_adapted, 1)
+        n_samples    = n_samples or max(self._n_adapted, 1)
         total_protos = sum(len(p) for p in self.prototypes.values())
-        feat_dim = self.feat_dim or 512
-
+        feat_dim     = self.feat_dim or 512
         if backbone_params is None:
-            # Rough estimate: feat_dim * 100 (typical for small CNNs)
             backbone_params = feat_dim * 100
-
-        # Backprop fine-tuning cost (per sample):
-        #   Forward: backbone_params MACs
-        #   Backward: ~2x backbone_params MACs (gradient + weight update)
-        #   Optimizer: ~backbone_params (momentum, Adam state)
-        #   Total: ~4x backbone_params per sample
-        backprop_ops_per_sample = 4 * backbone_params
-        backprop_total = backprop_ops_per_sample * n_samples
-
-        # Hebbian adaptation cost (per sample):
-        #   Compare to all prototypes: total_protos * feat_dim
-        #   Update winner: feat_dim
-        #   Total: total_protos * feat_dim + feat_dim
-        hebbian_ops_per_sample = total_protos * feat_dim + feat_dim
-        hebbian_total = hebbian_ops_per_sample * n_samples
-
-        # Memory comparison
-        # Backprop: gradients + optimizer state = ~3x parameters
-        backprop_memory = 3 * backbone_params * 4  # bytes (float32)
-        # Hebbian: just prototypes
-        hebbian_memory = total_protos * feat_dim * 4  # bytes
-
-        ratio = backprop_total / (hebbian_total + 1) if hebbian_total > 0 else float('inf')
-        memory_ratio = backprop_memory / (hebbian_memory + 1) if hebbian_memory > 0 else float('inf')
-
+        backprop_total  = 4 * backbone_params * n_samples
+        hebbian_total   = (total_protos * feat_dim + feat_dim) * n_samples
+        backprop_memory = 3 * backbone_params * 4
+        hebbian_memory  = total_protos * feat_dim * 4
         return {
-            'backprop_ops': int(backprop_total),
-            'hebbian_ops': int(hebbian_total),
-            'compute_ratio': float(ratio),
-            'backprop_memory_bytes': int(backprop_memory),
-            'hebbian_memory_bytes': int(hebbian_memory),
-            'memory_ratio': float(memory_ratio),
-            'backbone_params': backbone_params,
-            'n_prototypes': total_protos,
-            'n_samples': n_samples,
+            "backprop_ops":          int(backprop_total),
+            "hebbian_ops":           int(hebbian_total),
+            "compute_ratio":         float(backprop_total / (hebbian_total + 1)),
+            "backprop_memory_bytes": int(backprop_memory),
+            "hebbian_memory_bytes":  int(hebbian_memory),
+            "memory_ratio":          float(backprop_memory / (hebbian_memory + 1)),
+            "backbone_params":       backbone_params,
+            "n_prototypes":          total_protos,
+            "n_samples":             n_samples,
         }
 
     @property
@@ -486,4 +484,6 @@ class AdaptiveHead:
     def __repr__(self):
         return (f"AdaptiveHead(classes={self.n_classes}, "
                 f"prototypes={self.n_prototypes}, "
-                f"adapted={self._n_adapted})")
+                f"contrastive_epochs={self.contrastive_epochs}, "
+                f"max_drift={self.max_drift})")
+
