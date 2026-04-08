@@ -1,10 +1,11 @@
 """
 Hebbian Adaptive Head — plug into any pre-trained model.
 
-v5: Prototype replay for add_class() (Opus Option B).
-    Stores N_ANCHORS representative vectors per class after fit().
-    Uses them during add_class() to defend old territory.
-    No stored training data. No gradients. Pure Hebbian.
+v6: Two scaling fixes from Opus architecture review.
+    1. Margin scales with sqrt(n_classes) — reduces noise at 100+ classes
+    2. Top-k weighted confusers — each update fights top-5 threats, not just 1
+
+All updates: dw = f(pre, post). No gradients. No loss functions.
 
 Author: Gustav Gausepohl
 License: Mnemos Dual License (free research, commercial requires license)
@@ -18,6 +19,7 @@ class AdaptiveHead:
     def __init__(self, n_proto=5, adapt_lr=0.01,
                  contrastive_epochs=10, contrastive_lr=0.01,
                  contrastive_margin=0.7, anti_lr_scale=1.0,
+                 confuser_k=1, confuser_beta=3.0,
                  add_refine_epochs=10, add_margin=0.05,
                  add_push_strength=0.5, add_gentle_strength=0.1,
                  max_drift=0.1, n_anchors=5, seed=42):
@@ -28,6 +30,8 @@ class AdaptiveHead:
         self.contrastive_lr = contrastive_lr
         self.contrastive_margin = contrastive_margin
         self.anti_lr_scale = anti_lr_scale
+        self.confuser_k = confuser_k        # top-k confusers per update
+        self.confuser_beta = confuser_beta  # softmax sharpness
         self.add_refine_epochs = add_refine_epochs
         self.add_margin = add_margin
         self.add_push_strength = add_push_strength
@@ -50,10 +54,6 @@ class AdaptiveHead:
         self._n_adapted = 0
         self._all_protos = None
         self._proto_labels = None
-
-        # Replay anchors: class_name -> (n_anchors, D) array
-        # These are the compressed memory of old classes.
-        # Not training data — learned Hebbian summaries.
         self._anchors = {}
 
     # ── Spherical geometry ──
@@ -126,12 +126,6 @@ class AdaptiveHead:
         return radii
 
     def _build_anchors(self, features, labels):
-        """
-        Build replay anchors for all classes from training features.
-        Anchors = n_anchors prototypes per class, learned by clustering.
-        Stored separately from inference prototypes.
-        Memory: n_classes * n_anchors * D * 4 bytes (tiny).
-        """
         for label in sorted(set(labels)):
             name = str(label)
             mask = labels == label
@@ -140,8 +134,7 @@ class AdaptiveHead:
             anchors, _ = self._cluster(class_feats, n)
             self._anchors[name] = np.array(anchors, dtype=np.float32)
 
-    def _all_anchors(self):
-        """Flat array of all anchors with class labels."""
+    def _all_anchors_flat(self):
         if not self._anchors:
             return np.zeros((0, self.feat_dim or 512), dtype=np.float32), []
         vecs, names = [], []
@@ -151,15 +144,26 @@ class AdaptiveHead:
                 names.append(name)
         return np.array(vecs, dtype=np.float32), names
 
+    def _adaptive_margin(self):
+        """Margin scales down with class count to reduce noise at 100+ classes."""
+        n = max(len(self.classes), 1)
+        return self.contrastive_margin / np.sqrt(n / 10.0)
+
     def _lvq_refine(self, features, labels, verbose):
         self._build_flat()
         P = self._all_protos
         L = self._proto_labels
         eta = self.contrastive_lr
         alpha = self.anti_lr_scale
-        margin = self.contrastive_margin
+        k = min(self.confuser_k, len(self.classes) - 1)
+        beta = self.confuser_beta
+        margin = self._adaptive_margin()
         N = len(features)
         label_to_idx = {name: i for i, name in enumerate(self.classes)}
+
+        if verbose:
+            print(f"  Adaptive margin: {margin:.3f} (n_classes={len(self.classes)})")
+
         for epoch in range(self.contrastive_epochs):
             perm = self.rng.permutation(N)
             n_updates = 0
@@ -168,18 +172,41 @@ class AdaptiveHead:
                 y = label_to_idx[str(labels[i])]
                 sims = P @ x
                 correct_mask = (L == y)
-                wrong_mask = ~correct_mask
+                wrong_mask   = ~correct_mask
+
                 if not correct_mask.any() or not wrong_mask.any():
                     continue
-                winner_idx   = int(np.argmax(np.where(correct_mask, sims, -np.inf)))
-                confuser_idx = int(np.argmax(np.where(wrong_mask,   sims, -np.inf)))
+
+                winner_idx = int(np.argmax(np.where(correct_mask, sims, -np.inf)))
                 d_w = sims[winner_idx]
-                d_c = sims[confuser_idx]
-                ratio = min(d_w / d_c, d_c / d_w) if d_w > 0 and d_c > 0 else 0.0
+
+                # Top-k confusers, softmax-weighted
+                wrong_sims = sims.copy()
+                wrong_sims[correct_mask] = -np.inf
+                n_wrong = int(wrong_mask.sum())
+                actual_k = min(k, n_wrong)
+                top_k_idx = np.argpartition(wrong_sims, -actual_k)[-actual_k:]
+                top_k_sims = wrong_sims[top_k_idx]
+
+                # Only update if any confuser is within the margin window
+                best_confuser_sim = top_k_sims.max()
+                ratio = min(d_w / best_confuser_sim, best_confuser_sim / d_w)                         if d_w > 0 and best_confuser_sim > 0 else 0.0
+
                 if ratio > margin:
-                    P[winner_idx]   = self._spherical_pull(P[winner_idx], x, eta)
-                    P[confuser_idx] = self._spherical_push(P[confuser_idx], x, eta * alpha)
+                    # Pull winner toward x (spherical)
+                    P[winner_idx] = self._spherical_pull(P[winner_idx], x, eta)
+
+                    # Softmax weights over top-k confusers
+                    shifted = top_k_sims - top_k_sims.max()
+                    weights = np.exp(beta * shifted)
+                    weights /= weights.sum()
+
+                    # Push each confuser, weighted (spherical)
+                    for j, w in zip(top_k_idx, weights):
+                        P[j] = self._spherical_push(P[j], x, eta * alpha * w)
+
                     n_updates += 1
+
             if verbose:
                 sample = self.rng.choice(N, size=min(200, N), replace=False)
                 correct = sum(
@@ -187,6 +214,7 @@ class AdaptiveHead:
                     for i in sample)
                 print(f"  LVQ epoch {epoch+1}/{self.contrastive_epochs}: "
                       f"{n_updates} updates, ~{correct/len(sample):.1%} train acc")
+
         self._sync_from_flat()
 
     # ── Public API ──
@@ -199,6 +227,7 @@ class AdaptiveHead:
         self.feat_dim = D
         norms = np.linalg.norm(features, axis=1, keepdims=True) + 1e-8
         features_normed = features / norms
+
         for label in sorted(set(labels)):
             name = str(label)
             mask = labels == label
@@ -214,24 +243,23 @@ class AdaptiveHead:
             self.win_counts[name]   = 0.0
             if name not in self.classes:
                 self.classes.append(name)
+
         if verbose:
             print(f"  Initial clustering: {len(self.classes)} classes, "
                   f"{sum(len(p) for p in self.prototypes.values())} prototypes")
+
         if self.contrastive_epochs > 0:
             if verbose:
-                print(f"  Running LVQ2.1 ({self.contrastive_epochs} epochs)...")
+                print(f"  Running LVQ (top-{min(self.confuser_k, len(self.classes)-1)}, "
+                      f"{self.contrastive_epochs} epochs)...")
             self._lvq_refine(features_normed, labels, verbose)
-        # Build replay anchors from training data
+
         self._build_anchors(features_normed, labels)
-        if verbose:
-            n_anchors = sum(len(a) for a in self._anchors.values())
-            print(f"  Stored {n_anchors} replay anchors "
-                  f"({self.n_anchors}/class, "
-                  f"{n_anchors * D * 4 / 1024:.1f} KB)")
         self._fitted = True
         self._fit_time = time.time() - t0
         if verbose:
             print(f"  Fit time: {self._fit_time:.2f}s")
+
         return {"n_classes": len(self.classes),
                 "n_prototypes": sum(len(p) for p in self.prototypes.values()),
                 "fit_time": self._fit_time}
@@ -266,15 +294,6 @@ class AdaptiveHead:
         return float((preds == np.array([str(l) for l in labels])).mean())
 
     def add_class(self, name, features, verbose=True):
-        """
-        Three-phase Hebbian class addition with prototype replay.
-
-        Phase 1: cluster new class
-        Phase 2: new protos pushed away from old territory using
-                 BOTH new examples AND old anchor replay
-        Phase 3: old protos nudged away from new class (drift-capped)
-                 defended by anchor replay
-        """
         t0 = time.time()
         name = str(name)
         features = np.asarray(features, dtype=np.float32)
@@ -282,24 +301,19 @@ class AdaptiveHead:
         features = features / norms
         N = len(features)
 
-        # Phase 1: cluster new class
         new_protos_list, assignments = self._cluster(features, self.n_proto)
         new_radii = self._local_radius(features, new_protos_list, assignments)
         new_protos = np.array(new_protos_list, dtype=np.float32)
 
         old_protos_snap = self._all_protos.copy() if self._all_protos is not None                           else np.zeros((0, features.shape[1]), dtype=np.float32)
 
-        # Get anchor replay vectors
-        anchor_vecs, anchor_labels = self._all_anchors()
+        anchor_vecs, anchor_labels = self._all_anchors_flat()
         has_anchors = len(anchor_vecs) > 0
-
         eta    = self.contrastive_lr
         push   = self.add_push_strength
         gentle = self.add_gentle_strength
         marg   = self.add_margin
 
-        # Phase 2: new protos avoid old territory
-        # Interleave new examples with anchor replay
         if len(old_protos_snap) > 0:
             for epoch in range(self.add_refine_epochs):
                 perm = self.rng.permutation(N)
@@ -309,42 +323,30 @@ class AdaptiveHead:
                     old_sims = old_protos_snap @ x
                     winner_new  = int(np.argmax(new_sims))
                     nearest_old = int(np.argmax(old_sims))
-
-                    # Spherical pull toward new example
                     new_protos[winner_new] = self._spherical_pull(
                         new_protos[winner_new], x, eta)
-
-                    # Spherical push away from nearest old proto
                     margin = float(new_protos[winner_new] @ x) - old_sims[nearest_old]
                     if margin < marg:
                         new_protos[winner_new] = self._spherical_push(
-                            new_protos[winner_new],
-                            old_protos_snap[nearest_old],
-                            eta * push)
-
-                # Replay: also push new protos away from anchor directions
+                            new_protos[winner_new], old_protos_snap[nearest_old], eta * push)
                 if has_anchors:
-                    perm_a = self.rng.permutation(len(anchor_vecs))
-                    for i in perm_a:
-                        a = anchor_vecs[i]
+                    for a in anchor_vecs[self.rng.permutation(len(anchor_vecs))]:
                         new_sims = new_protos @ a
                         old_sims = old_protos_snap @ a
                         winner_new  = int(np.argmax(new_sims))
                         nearest_old = int(np.argmax(old_sims))
-                        margin = float(new_protos[winner_new] @ a) - old_sims[nearest_old]
-                        if margin < marg:
+                        if float(new_protos[winner_new] @ a) - old_sims[nearest_old] < marg:
                             new_protos[winner_new] = self._spherical_push(
-                                new_protos[winner_new],
-                                old_protos_snap[nearest_old],
-                                eta * push * 0.5)  # gentler for replay
+                                new_protos[winner_new], old_protos_snap[nearest_old], eta * push * 0.5)
 
-        # Phase 3: old protos make room, defended by anchors
         if self._all_protos is not None and len(self._all_protos) > 0:
             drift = np.zeros(len(self._all_protos), dtype=np.float32)
             P = self._all_protos
-
+            label_to_proto_indices = {
+                lbl: [j for j in range(len(self._proto_labels)) if self._proto_labels[j] == idx]
+                for idx, lbl in enumerate(self.classes)
+            }
             for epoch in range(self.add_refine_epochs):
-                # Push from new examples
                 perm = self.rng.permutation(N)
                 for i in perm:
                     x = features[i]
@@ -360,50 +362,28 @@ class AdaptiveHead:
                             delta = eta * gentle * tangent
                             delta_mag = float(np.linalg.norm(delta))
                             if drift[nearest_old] + delta_mag <= self.max_drift:
-                                P[nearest_old] = P[nearest_old] + delta
+                                P[nearest_old] += delta
                                 nrm = np.linalg.norm(P[nearest_old])
-                                if nrm > 1e-8:
-                                    P[nearest_old] /= nrm
+                                if nrm > 1e-8: P[nearest_old] /= nrm
                                 drift[nearest_old] += delta_mag
-
-                # Anchor replay: pull old protos back toward their anchor directions
-                # This is the key defense — anchors resist drift
                 if has_anchors:
-                    label_to_proto_indices = {}
-                    for idx, lbl in enumerate(self.classes):
-                        label_to_proto_indices[lbl] = [
-                            j for j in range(len(self._proto_labels))
-                            if self._proto_labels[j] == idx
-                        ]
                     for i, a in enumerate(anchor_vecs):
                         lbl = anchor_labels[i]
-                        if lbl not in label_to_proto_indices:
-                            continue
+                        if lbl not in label_to_proto_indices: continue
                         proto_idxs = label_to_proto_indices[lbl]
-                        if not proto_idxs:
-                            continue
-                        # Find nearest proto of same class to this anchor
-                        anchor_sims = [float(P[j] @ a) for j in proto_idxs]
-                        nearest_same = proto_idxs[int(np.argmax(anchor_sims))]
-                        # Pull it back toward anchor (resist drift)
-                        P[nearest_same] = self._spherical_pull(
-                            P[nearest_same], a, eta * gentle * 0.5)
-
+                        if not proto_idxs: continue
+                        nearest_same = proto_idxs[int(np.argmax([float(P[j] @ a) for j in proto_idxs]))]
+                        P[nearest_same] = self._spherical_pull(P[nearest_same], a, eta * gentle * 0.5)
             self._sync_from_flat()
 
-        # Register new class
         self.prototypes[name]   = [new_protos[k].copy() for k in range(len(new_protos))]
         self.proto_counts[name] = [float(len(a)) for a in assignments]
         self.proto_radius[name] = new_radii
-        self.thresholds[name]   = float(np.mean(list(self.thresholds.values())))                                    if self.thresholds else 0.0
+        self.thresholds[name]   = float(np.mean(list(self.thresholds.values()))) if self.thresholds else 0.0
         self.win_counts[name]   = self.total_predictions / max(len(self.prototypes) + 1, 1)
         if name not in self.classes:
             self.classes.append(name)
-
-        # Build anchors for new class too
-        self._anchors[name] = np.array(
-            self._cluster(features, min(self.n_anchors, N))[0], dtype=np.float32)
-
+        self._anchors[name] = np.array(self._cluster(features, min(self.n_anchors, N))[0], dtype=np.float32)
         self._build_flat()
 
         add_time = time.time() - t0
@@ -417,8 +397,7 @@ class AdaptiveHead:
         label = str(label)
         feature = np.asarray(feature, dtype=np.float32)
         norm = np.linalg.norm(feature)
-        if norm > 0:
-            feature = feature / norm
+        if norm > 0: feature = feature / norm
         if label not in self.prototypes:
             self.prototypes[label]   = [feature.copy()]
             self.proto_counts[label] = [1.0]
