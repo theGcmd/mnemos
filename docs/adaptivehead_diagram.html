@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdaptiveHead — Mnemos</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    padding: 40px 24px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #141414; color: #e0e0e0; }
+    svg .box-fill { fill: #1e1e1e; stroke: #3a3a3a; }
+  }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 6px; }
+  p.sub { font-size: 14px; color: #666; margin-bottom: 32px; }
+  @media (prefers-color-scheme: dark) { p.sub { color: #999; } }
+  svg { width: 100%; height: auto; display: block; }
+
+  .node { cursor: pointer; }
+  .node:hover rect, .node:hover circle { opacity: 0.85; }
+
+  .c-gray > rect  { fill: #F1EFE8; stroke: #5F5E5A; }
+  .c-gray > text  { fill: #444441; }
+  .c-purple > rect { fill: #EEEDFE; stroke: #534AB7; }
+  .c-purple > text { fill: #3C3489; }
+  .c-teal > rect  { fill: #E1F5EE; stroke: #0F6E56; }
+  .c-teal > text  { fill: #085041; }
+
+  @media (prefers-color-scheme: dark) {
+    .c-gray > rect   { fill: #444441; stroke: #B4B2A9; }
+    .c-gray > text   { fill: #D3D1C7; }
+    .c-purple > rect { fill: #3C3489; stroke: #AFA9EC; }
+    .c-purple > text { fill: #CECBF6; }
+    .c-teal > rect   { fill: #085041; stroke: #5DCAA5; }
+    .c-teal > text   { fill: #9FE1CB; }
+  }
+
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; font-weight: 400; fill: #5F5E5A; }
+  @media (prefers-color-scheme: dark) { .ts { fill: #B4B2A9; } }
+
+  .arr { stroke: #888780; stroke-width: 1.5; fill: none; }
+
+  .result-strip {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-top: 32px;
+  }
+  .result-card {
+    flex: 1; min-width: 140px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  @media (prefers-color-scheme: dark) { .result-card { border-color: #2a2a2a; background: #1a1a1a; } }
+  .result-num { font-size: 22px; font-weight: 500; }
+  .result-label { font-size: 12px; color: #666; margin-top: 3px; }
+  @media (prefers-color-scheme: dark) { .result-label { color: #999; } }
+  .num-teal   { color: #0F6E56; }
+  .num-purple { color: #534AB7; }
+  .num-gray   { color: #444441; }
+  @media (prefers-color-scheme: dark) {
+    .num-teal   { color: #5DCAA5; }
+    .num-purple { color: #AFA9EC; }
+    .num-gray   { color: #D3D1C7; }
+  }
+
+  .constraint {
+    margin-top: 24px;
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    font-style: italic;
+  }
+  footer {
+    margin-top: 48px;
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+  }
+  footer a { color: #534AB7; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<h1>AdaptiveHead — how it works</h1>
+<p class="sub">Mnemos v0.2.1 · Gustav Gausepohl · <a href="https://github.com/theGcmd/mnemos">github.com/theGcmd/mnemos</a></p>
+
+<svg viewBox="0 0 680 300" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>AdaptiveHead pipeline</title>
+<desc>Frozen backbone extracts features, Hebbian clustering forms prototypes, LVQ2.1 refines boundaries, nearest prototype predicts.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<g class="node c-gray">
+  <rect x="20" y="30" width="130" height="56" rx="8" stroke-width="0.5"/>
+  <text class="th" x="85" y="52" text-anchor="middle" dominant-baseline="central">Frozen backbone</text>
+  <text class="ts" x="85" y="70" text-anchor="middle" dominant-baseline="central">ResNet, ViT, any CNN</text>
+</g>
+
+<line x1="150" y1="58" x2="183" y2="58" class="arr" marker-end="url(#arrow)"/>
+<text class="ts" x="166" y="50" text-anchor="middle">512d</text>
+
+<g class="node c-purple">
+  <rect x="183" y="30" width="140" height="56" rx="8" stroke-width="0.5"/>
+  <text class="th" x="253" y="52" text-anchor="middle" dominant-baseline="central">Hebbian clustering</text>
+  <text class="ts" x="253" y="70" text-anchor="middle" dominant-baseline="central">10 prototypes/class</text>
+</g>
+
+<line x1="323" y1="58" x2="356" y2="58" class="arr" marker-end="url(#arrow)"/>
+
+<g class="node c-teal">
+  <rect x="356" y="30" width="140" height="56" rx="8" stroke-width="0.5"/>
+  <text class="th" x="426" y="52" text-anchor="middle" dominant-baseline="central">LVQ2.1 refinement</text>
+  <text class="ts" x="426" y="70" text-anchor="middle" dominant-baseline="central">Spherical push/pull</text>
+</g>
+
+<line x1="496" y1="58" x2="529" y2="58" class="arr" marker-end="url(#arrow)"/>
+
+<g class="node c-teal">
+  <rect x="529" y="30" width="130" height="56" rx="8" stroke-width="0.5"/>
+  <text class="th" x="594" y="52" text-anchor="middle" dominant-baseline="central">Predict</text>
+  <text class="ts" x="594" y="70" text-anchor="middle" dominant-baseline="central">Nearest prototype</text>
+</g>
+
+<line x1="253" y1="86" x2="253" y2="130" class="arr" marker-end="url(#arrow)" stroke="#7F77DD"/>
+
+<g class="node c-purple">
+  <rect x="140" y="130" width="226" height="110" rx="10" stroke-width="0.5"/>
+  <text class="th" x="253" y="152" text-anchor="middle" dominant-baseline="central">Prototype memory</text>
+  <circle cx="178" cy="195" r="7" fill="#AFA9EC"/>
+  <circle cx="202" cy="208" r="7" fill="#AFA9EC"/>
+  <circle cx="194" cy="180" r="7" fill="#AFA9EC"/>
+  <circle cx="253" cy="192" r="9" fill="#534AB7"/>
+  <circle cx="278" cy="206" r="7" fill="#AFA9EC"/>
+  <circle cx="298" cy="185" r="7" fill="#AFA9EC"/>
+  <circle cx="320" cy="200" r="7" fill="#AFA9EC"/>
+  <line x1="178" y1="195" x2="253" y2="192" stroke="#534AB7" stroke-width="0.5"/>
+  <line x1="202" y1="208" x2="253" y2="192" stroke="#534AB7" stroke-width="0.5"/>
+  <line x1="194" y1="180" x2="253" y2="192" stroke="#534AB7" stroke-width="0.5"/>
+  <line x1="278" y1="206" x2="253" y2="192" stroke="#534AB7" stroke-width="0.5"/>
+  <line x1="298" y1="185" x2="253" y2="192" stroke="#534AB7" stroke-width="0.5"/>
+  <line x1="320" y1="200" x2="253" y2="192" stroke="#534AB7" stroke-width="0.5"/>
+  <text class="ts" x="253" y="232" text-anchor="middle" dominant-baseline="central">centroid = prototype</text>
+</g>
+
+<line x1="426" y1="86" x2="426" y2="130" class="arr" marker-end="url(#arrow)" stroke="#1D9E75"/>
+
+<g class="node c-teal">
+  <rect x="314" y="130" width="226" height="110" rx="10" stroke-width="0.5"/>
+  <text class="th" x="427" y="152" text-anchor="middle" dominant-baseline="central">Boundary refinement</text>
+  <circle cx="364" cy="195" r="8" fill="#9FE1CB"/>
+  <circle cx="392" cy="185" r="8" fill="#9FE1CB"/>
+  <circle cx="452" cy="195" r="8" fill="#5DCAA5"/>
+  <circle cx="480" cy="185" r="8" fill="#5DCAA5"/>
+  <line x1="392" y1="185" x2="452" y2="195" stroke="#0F6E56" stroke-width="1.5"/>
+  <path d="M392 185 L372 185" stroke="#1D9E75" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M452 195 L472 195" stroke="#1D9E75" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <text class="ts" x="364" y="215" text-anchor="middle">pull</text>
+  <text class="ts" x="480" y="215" text-anchor="middle">push</text>
+  <text class="ts" x="427" y="232" text-anchor="middle" dominant-baseline="central">dw = f(pre, post) only</text>
+</g>
+
+<text class="ts" x="340" y="276" text-anchor="middle" dominant-baseline="central">No backward(). No gradients. No loss functions.</text>
+
+</svg>
+
+<div class="result-strip">
+  <div class="result-card">
+    <div class="result-num num-teal">82.2%</div>
+    <div class="result-label">CIFAR-10 accuracy (frozen ResNet-18)</div>
+  </div>
+  <div class="result-card">
+    <div class="result-num num-gray">−3%</div>
+    <div class="result-label">gap vs PyTorch backprop</div>
+  </div>
+  <div class="result-card">
+    <div class="result-num num-purple">905×</div>
+    <div class="result-label">less compute than fine-tuning</div>
+  </div>
+  <div class="result-card">
+    <div class="result-num num-teal">0.3s</div>
+    <div class="result-label">to add a new class, no retraining</div>
+  </div>
+</div>
+
+<p class="constraint">Every weight update: dw = f(pre, post) — local Hebbian learning only</p>
+
+<footer>
+  Mnemos v0.2.1 · <a href="https://github.com/theGcmd/mnemos">GitHub</a> · 
+  Author: Gustav Gausepohl · Dual license (free for research, commercial requires license)
+</footer>
+
+</body>
+</html>
