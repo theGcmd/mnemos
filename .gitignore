@@ -1,0 +1,6 @@
+data/
+*.tar.gz
+venv/
+__pycache__/
+*.pyc
+*.egg-info/
