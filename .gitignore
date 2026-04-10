@@ -10,3 +10,13 @@ venv/
 __pycache__/
 *.pyc
 *.egg-info/
+data/
+venv/
+*.tar.gz
+*.mat
+__pycache__/
+*.pyc
+*.egg-info/
+.eggs/
+dist/
+build/
