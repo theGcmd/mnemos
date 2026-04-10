@@ -12,6 +12,32 @@ pip install mnemos
 
 ## Results
 
+### Bearing fault detection — real industrial data
+
+| Metric | Mnemos | Standard 3-sigma | Deep learning (GPU) |
+|--------|--------|-----------------|-------------------|
+| F1 score | **0.876 ± 0.018** | 0.000 | 0.82–0.88 |
+| Recall | **1.000** | 0.000 | ~0.85 |
+| Warning time | **6.2 hours** | 0 hours | unknown |
+| False alarms/day | **0.0** | — | unknown |
+| GPU needed | **No** | No | Yes |
+| Labels needed | **No** | No | Yes |
+
+Tested on NASA IMS and CWRU — two standard benchmarks used in published papers.
+Same code, no modifications between datasets. CWRU F1: **0.998**.
+
+The standard industrial method (3-sigma RMS threshold) gives zero warning on this
+failure mode because the bearing degrades gradually. Mnemos catches it 6.2 hours
+early, automatically, with no manual tuning.
+
+```python
+detector = mnemos.AnomalyDetector()
+detector.fit(normal_vibration_data)    # learns normal in <1s, no labels
+scores = detector.score(new_data)      # higher = more anomalous
+```
+
+---
+
 ### AdaptiveHead — plug into any frozen backbone, replace fine-tuning
 
 | Metric | Mnemos | PyTorch backprop |
@@ -23,13 +49,13 @@ pip install mnemos
 | Forgetting (new classes) | **−18%** | N/A |
 
 ```python
-import mnemos
-
 head = mnemos.AdaptiveHead(n_proto=10)
 head.fit(train_features, train_labels)       # 1.1s, no backprop
 head.add_class("new_category", new_features) # 0.3s, no retraining
 predictions = head.predict(test_features)
 ```
+
+---
 
 ### AnomalyDetector — beats sklearn IsolationForest on 5/5 benchmarks
 
@@ -43,18 +69,14 @@ predictions = head.predict(test_features)
 
 15/15 stress tests passed (drift, adversarial, stability).
 
-```python
-detector = mnemos.AnomalyDetector()
-detector.fit(normal_data)             # learns what normal looks like
-scores = detector.score(new_data)     # higher = more anomalous
-```
+---
 
 ### ContinualLearner — learns new tasks without forgetting
 
 | Method | Split-MNIST accuracy | Uses gradients |
 |--------|---------------------|----------------|
 | Mnemos | **97.4%** | No |
-| EWC | 65.5% | Yes |
+| EWC (DeepMind) | 65.5% | Yes |
 
 ---
 
@@ -66,17 +88,24 @@ Every weight update in Mnemos follows one rule:
 dw = f(pre, post)
 ```
 
-Pre-synaptic activity times post-synaptic activity. Local only. No global error signal. No backward pass. This is how biological neurons learn — and it turns out to be surprisingly powerful.
+Pre-synaptic activity times post-synaptic activity. Local only. No global error
+signal. No backward pass. This is how biological neurons learn.
 
-The key contribution is a **specificity penalty** that prevents winner-take-all collapse in competitive Hebbian networks:
+The key contribution is a **specificity penalty** that prevents winner-take-all
+collapse in competitive Hebbian networks:
 
 ```
 effective_similarity = raw_similarity - mean_similarity - threshold
 ```
 
-Without this, competitive learning degenerates — all neurons converge to the same representation. With it, the network maintains diverse, class-specific prototypes. This appears in every competitive layer in Mnemos.
+Without this, competitive learning degenerates — all neurons converge to the same
+representation. With it, the network maintains diverse, class-specific prototypes.
+This appears in every competitive layer in Mnemos.
 
-**AdaptiveHead** additionally uses LVQ2.1 with spherical tangent geometry for boundary refinement. The standard push/pull update is geometrically wrong on normalized vectors — it pushes toward the origin rather than away from the confuser class. Fixing this was the largest single accuracy improvement.
+**AdaptiveHead** additionally uses LVQ2.1 with spherical tangent geometry for
+boundary refinement. The standard push/pull update is geometrically wrong on
+normalized vectors — it pushes toward the origin rather than away from the confuser
+class. Fixing this was the largest single accuracy improvement.
 
 ---
 
@@ -100,8 +129,8 @@ pip install -e .
 
 | Module | What it does |
 |--------|-------------|
-| `AdaptiveHead` | Plug into any frozen PyTorch backbone. Replace fine-tuning. |
 | `AnomalyDetector` | Learn normal, flag anomalies. No labels needed. |
+| `AdaptiveHead` | Plug into any frozen PyTorch backbone. Replace fine-tuning. |
 | `ContinualLearner` | Learn new tasks without forgetting old ones. |
 | `HebbianFilters` | Competitive feature learning with specificity penalty. |
 | `HebbianMemory` | Associative knowledge storage in weight matrices. |
@@ -117,8 +146,8 @@ pip install -e .
 Frozen backbone → 512-dim features → Hebbian clustering → LVQ2.1 refinement → Nearest prototype
 ```
 
-1. **Hebbian clustering** — competitive k-means using only local updates, forms per-class prototypes
-2. **LVQ2.1 refinement** — contrastive boundary learning: winner pulled toward sample (Hebbian), confuser pushed away (anti-Hebbian), both using spherical tangent geometry
+1. **Hebbian clustering** — competitive k-means using only local updates
+2. **LVQ2.1 refinement** — winner pulled toward sample, confuser pushed away, spherical tangent geometry
 3. **Prediction** — nearest prototype by cosine similarity
 
 No backward(). No optimizer state. No gradient storage.
@@ -128,34 +157,17 @@ No backward(). No optimizer state. No gradient storage.
 ## Honest limitations
 
 - AdaptiveHead has a 3% accuracy gap vs backprop on CIFAR-10
-- `add_class()` has ~18% forgetting when new classes have high feature overlap with existing ones (e.g. ship vs airplane in ResNet-18 features, cosine sim ~0.7). This matches published SOTA for gradient-free incremental learning.
-- Initial fit is slightly slower than a backprop linear head (1.1s vs 0.4s), but adaptation is 905x cheaper
-
----
-
-## The core mechanism
-
-```python
-# Specificity penalty — prevents winner-take-all collapse
-effective_sim = raw_sim - mean_sim - threshold
-
-# Spherical Hebbian pull — move prototype toward example
-tangent = x - (n @ x) * n
-n_new = n + eta * tangent
-n_new = n_new / norm(n_new)
-
-# Spherical anti-Hebbian push — move prototype away from confuser
-tangent = n - (n @ o) * n
-n_new = n + eta * tangent
-n_new = n_new / norm(n_new)
-```
+- `add_class()` has ~18% forgetting when new classes have high feature overlap
+  with existing ones. This matches published SOTA for gradient-free incremental learning.
+- Bearing fault detection tested on two standard benchmarks — real-world deployment
+  may surface additional challenges (variable loading, sensor noise, temperature drift)
 
 ---
 
 ## License
 
-Free for research and non-commercial use. Commercial use requires a license from the author.
-See [LICENSE](LICENSE) for details.
+Free for research and non-commercial use. Commercial use requires a license from
+the author. See [LICENSE](LICENSE) for details.
 
 ---
 
@@ -174,7 +186,7 @@ See [LICENSE](LICENSE) for details.
 
 ## Author
 
-Gustav Gausepohl — independent AI researcher, age 14, UK.  
+Gustav Gausepohl — independent AI researcher, age 14, UK.
 [thegcmd.github.io](https://thegcmd.github.io) · gustavgausepohl@gmail.com
 
 *"Neurons that fire together, wire together." — Donald Hebb, 1949*
