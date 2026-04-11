@@ -5,7 +5,7 @@
 > ⚠️ Alpha — APIs may change. Benchmarks are real and reproducible.
 
 ```
-pip install mnemos
+pip install mnemos-hebbian
 ```
 
 ---
