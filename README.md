@@ -112,7 +112,7 @@ class. Fixing this was the largest single accuracy improvement.
 ## Installation
 
 ```bash
-pip install mnemos
+pip install mnemos-hebbian
 ```
 
 From source:
